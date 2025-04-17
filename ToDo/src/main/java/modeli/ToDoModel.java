@@ -331,62 +331,6 @@ public class ToDoModel {
         return lista;
     }
 
-    // Metoda za štampanje detalja o ToDo stavci u novom dijalogu ?????
-    public void stampajToDo() {
-        // Kreiraj novi dijalog
-        JDialog dialog = new JDialog(new JFrame(), "Detalji ToDo stavke", true);
-        dialog.setLayout(new BorderLayout(10, 10));
-        dialog.setSize(500, 400);
-        dialog.setLocationRelativeTo(null);
-        
-        // Format datuma
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-        
-        // Kreiraj glavni panel
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        
-        // Dodaj naslov
-        JLabel lblNaslov = new JLabel("Naslov: " + this.naslov);
-        lblNaslov.setFont(new Font("Arial", Font.BOLD, 16));
-        mainPanel.add(lblNaslov);
-        mainPanel.add(new JLabel(" "));
-        
-        // Dodaj ID
-        mainPanel.add(new JLabel("ID: " + this.ID));
-        mainPanel.add(new JLabel(" "));
-        
-        // Dodaj stanje
-        mainPanel.add(new JLabel("Stanje: " + this.Stanje));
-        mainPanel.add(new JLabel(" "));
-        
-        // Dodaj datume
-        mainPanel.add(new JLabel("Datum kreiranja: " + sdf.format(this.datumKreiranja)));
-        mainPanel.add(new JLabel("Rok do: " + sdf.format(this.rokDo)));
-        mainPanel.add(new JLabel(" "));
-        
-        // Dodaj korisnik ID
-        mainPanel.add(new JLabel("Korisnik ID: " + this.userID));
-        mainPanel.add(new JLabel(" "));
-        
-        // Dodaj opis u text area
-        mainPanel.add(new JLabel("Opis:"));
-        JTextArea txtOpis = new JTextArea(this.Opis);
-        txtOpis.setEditable(false);
-        txtOpis.setLineWrap(true);
-        txtOpis.setWrapStyleWord(true);
-        JScrollPane scrollPane = new JScrollPane(txtOpis);
-        scrollPane.setPreferredSize(new Dimension(450, 150));
-        mainPanel.add(scrollPane);
-        
-        // Dodaj panel u dijalog
-        dialog.add(mainPanel, BorderLayout.CENTER);
-        
-        // Prikaži dijalog
-        dialog.setVisible(true);
-    }
-
     // Metoda za generisanje izveštaja za ToDo stavke po stanju
     public static void generisiReportZaStanje(String stanje) {
         try {

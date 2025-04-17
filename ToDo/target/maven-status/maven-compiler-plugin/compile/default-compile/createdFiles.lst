@@ -2,7 +2,6 @@ com\mycompany\todo\UI\ToDoFrame$11.class
 com\mycompany\todo\UI\LoginFrame$2.class
 com\mycompany\todo\UI\ToDoFrame$3.class
 com\mycompany\todo\UI\ToDoFrame$8.class
-com\mycompany\todo\UI\ToDoFrame$ButtonEditor.class
 com\mycompany\todo\ToDo.class
 com\mycompany\todo\UI\ToDoFrame.class
 db\DatabaseConnection.class
@@ -16,7 +15,6 @@ com\mycompany\todo\UI\ToDoFrame$9.class
 com\mycompany\todo\UI\ToDoFrame$2.class
 com\mycompany\todo\UI\ToDoFrame$12.class
 com\mycompany\todo\UI\ToDoFrame$10.class
-com\mycompany\todo\UI\ToDoFrame$ButtonRenderer.class
 com\mycompany\todo\UI\LoginFrame$3.class
 com\mycompany\todo\UI\Registracija$1.class
 com\mycompany\todo\UI\ToDoFrame$7.class
@@ -24,7 +22,6 @@ modeli\KorisnikModel.class
 com\mycompany\todo\UI\Registracija$2.class
 com\mycompany\todo\UI\LoginFrame$4.class
 com\mycompany\todo\UI\ToDoFrame$6.class
-com\mycompany\todo\UI\ToDoFrame$ButtonEditor$1.class
 com\mycompany\todo\UI\ToDoFrame$4.class
 com\mycompany\todo\UI\ToDoFrame$1.class
 com\mycompany\todo\UI\LoginFrame$1.class
