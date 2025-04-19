@@ -46,15 +46,6 @@ public class LoginFrame extends javax.swing.JFrame {
 
         jLabel2.setText("Lozinka");
 
-        txtKorisnickoIme.setFocusCycleRoot(true);
-        txtKorisnickoIme.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtKorisnickoImeKeyPressed(evt);
-            }
-        });
-
-        txtLozinka.setFocusCycleRoot(true);
-
         btnLogin.setText("Uloguj se");
         btnLogin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -154,15 +145,6 @@ public class LoginFrame extends javax.swing.JFrame {
     }
 
     }//GEN-LAST:event_btnLoginActionPerformed
-
-//    DAMIRE OVO UCI
-    private void txtKorisnickoImeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtKorisnickoImeKeyPressed
-        // TODO add your handling code here:
-         if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                // Pomerite fokus na jTextField2
-                txtLozinka.requestFocus();
-         }
-    }//GEN-LAST:event_txtKorisnickoImeKeyPressed
 
     private void btnRegistracijaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistracijaActionPerformed
         // TODO add your handling code here:

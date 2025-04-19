@@ -186,8 +186,7 @@ public class ToDoModel {
             return lista;
         }
 
-        try (Connection conn = DatabaseConnection.getConnection(); 
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, korisnik.ID);
 
@@ -195,7 +194,7 @@ public class ToDoModel {
                 while (rs.next()) {
                     Date datumKreiranja = trimTime(new Date(rs.getDate("datumKreiranja").getTime()));
                     Date rokDo = trimTime(new Date(rs.getDate("rokDo").getTime()));
-                    
+
                     ToDoModel todo = new ToDoModel(
                             rs.getInt("id"),
                             rs.getString("naslov"),
@@ -256,7 +255,7 @@ public class ToDoModel {
             while (rs.next()) {
                 Date datumKreiranja = trimTime(new Date(rs.getDate("datumKreiranja").getTime()));
                 Date rokDo = trimTime(new Date(rs.getDate("rokDo").getTime()));
-                
+
                 ToDoModel todo = new ToDoModel(
                         rs.getInt("id"),
                         rs.getString("naslov"),
@@ -277,25 +276,31 @@ public class ToDoModel {
 
     public static List<ToDoModel> SortirajToDoPoDatumu() {
         List<ToDoModel> lista = new ArrayList<>();
-        String sql = "SELECT * FROM todo order by datumKreiranja";
+        String sql = "SELECT * FROM todo Where UserID = ? order by datumKreiranja";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+        int userId = Sesija.getUlogovaniKorisnik().ID;
 
-            while (rs.next()) {
-                Date datumKreiranja = trimTime(new Date(rs.getDate("datumKreiranja").getTime()));
-                Date rokDo = trimTime(new Date(rs.getDate("rokDo").getTime()));
-                
-                ToDoModel todo = new ToDoModel(
-                        rs.getInt("id"),
-                        rs.getString("naslov"),
-                        rs.getString("opis"),
-                        rs.getString("stanje"),
-                        datumKreiranja,
-                        rokDo,
-                        rs.getInt("userID")
-                );
-                lista.add(todo);
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, userId);  // 👈 Set parameter first
+            try (ResultSet rs = pstmt.executeQuery()) {  // 👈 Then execute the query
+                while (rs.next()) {
+                    Date datumKreiranja = trimTime(new Date(rs.getDate("datumKreiranja").getTime()));
+                    Date rokDo = trimTime(new Date(rs.getDate("rokDo").getTime()));
+
+                    ToDoModel todo = new ToDoModel(
+                            rs.getInt("id"),
+                            rs.getString("naslov"),
+                            rs.getString("opis"),
+                            rs.getString("stanje"),
+                            datumKreiranja,
+                            rokDo,
+                            rs.getInt("userID")
+                    );
+                    lista.add(todo);
+                }
             }
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -305,24 +310,28 @@ public class ToDoModel {
 
     public static List<ToDoModel> SortirajToDoPoStanju() {
         List<ToDoModel> lista = new ArrayList<>();
-        String sql = "SELECT * FROM todo order by stanje ";
+        String sql = "SELECT * FROM todo where userid = ? order by stanje ";
+        int userId = Sesija.getUlogovaniKorisnik().ID;
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql);) {
 
-            while (rs.next()) {
-                Date datumKreiranja = trimTime(new Date(rs.getDate("datumKreiranja").getTime()));
-                Date rokDo = trimTime(new Date(rs.getDate("rokDo").getTime()));
-                
-                ToDoModel todo = new ToDoModel(
-                        rs.getInt("id"),
-                        rs.getString("naslov"),
-                        rs.getString("opis"),
-                        rs.getString("stanje"),
-                        datumKreiranja,
-                        rokDo,
-                        rs.getInt("userID")
-                );
-                lista.add(todo);
+             pstmt.setInt(1, userId);  // 👈 Set parameter first
+            try (ResultSet rs = pstmt.executeQuery()) {  // 👈 Then execute the query
+                while (rs.next()) {
+                    Date datumKreiranja = trimTime(new Date(rs.getDate("datumKreiranja").getTime()));
+                    Date rokDo = trimTime(new Date(rs.getDate("rokDo").getTime()));
+
+                    ToDoModel todo = new ToDoModel(
+                            rs.getInt("id"),
+                            rs.getString("naslov"),
+                            rs.getString("opis"),
+                            rs.getString("stanje"),
+                            datumKreiranja,
+                            rokDo,
+                            rs.getInt("userID")
+                    );
+                    lista.add(todo);
+                }
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -337,24 +346,23 @@ public class ToDoModel {
             // 1. Dohvati samo ToDo stavke sa zadatim stanjem za ulogovanog korisnika
             List<ToDoModel> todoList = new ArrayList<>();
             String sql = "SELECT * FROM todo WHERE stanje = ? AND userID = ?";
-            
+
             KorisnikModel korisnik = Sesija.getUlogovaniKorisnik();
             if (korisnik == null) {
                 System.out.println("Nema ulogovanog korisnika.");
                 return;
             }
-            
-            try (Connection conn = DatabaseConnection.getConnection(); 
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                
+
+            try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
                 pstmt.setString(1, stanje);
                 pstmt.setInt(2, korisnik.ID);
-                
+
                 try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
                         Date datumKreiranja = trimTime(new Date(rs.getDate("datumKreiranja").getTime()));
                         Date rokDo = trimTime(new Date(rs.getDate("rokDo").getTime()));
-                        
+
                         ToDoModel todo = new ToDoModel(
                                 rs.getInt("id"),
                                 rs.getString("naslov"),
@@ -371,28 +379,28 @@ public class ToDoModel {
                 ex.printStackTrace();
                 return;
             }
-            
+
             // 2. Kreiraj izvor podataka za JasperReports
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(todoList);
-            
+
             // 3. Inicijalizuj parametre
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("stanje", stanje);
             parameters.put("naslovIzvestaja", "Izveštaj ToDo stavki - Stanje: " + stanje);
-            
+
             // 4. Učitaj JasperDesign iz .jrxml fajla
             String reportPath = "src/main/resources/reports/TodoReport.jrxml";
             JasperDesign jasperDesign = JRXmlLoader.load(reportPath);
-            
+
             // 5. Kompiliraj JasperReport
             JasperReport jasperReport = JasperCompileManager.compileReport(jasperDesign);
-            
+
             // 6. Popuni izveštaj podacima
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
-            
+
             // 7. Prikaži izveštaj
             JasperViewer.viewReport(jasperPrint, false);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Greška pri generisanju izveštaja: " + e.getMessage());

@@ -37,17 +37,16 @@ public class ToDoFrame extends javax.swing.JFrame {
     /**
      * Creates new form ToDoFrame
      */
-    
     public ToDoFrame() {
         initComponents();
-        
+
         DefaultTableModel model = new DefaultTableModel(
-        new String[] {"ID", "Naslov", "Opis", "Datum Kreiranja", "Rok Do", "Stanje"}, 0);
+                new String[]{"ID", "Naslov", "Opis", "Datum Kreiranja", "Rok Do", "Stanje"}, 0);
         jTable1.setModel(model);
-         // popunavanje polja na osnovu selektovanog polja iz tabelete
-        jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-            public void valueChanged (ListSelectionEvent event){
-                if (!event.getValueIsAdjusting()){
+        // popunavanje polja na osnovu selektovanog polja iz tabelete
+        jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                if (!event.getValueIsAdjusting()) {
                     int selectedRow = jTable1.getSelectedRow();
                     if (selectedRow != -1) {
                         txtNaslov.setText(jTable1.getValueAt(selectedRow, 1).toString());
@@ -57,10 +56,30 @@ public class ToDoFrame extends javax.swing.JFrame {
             }
         });
         
-        btnPrikaziActionPerformed(null);
-         
-    }
+        // Add header click listener for sorting
+        jTable1.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int columnIndex = jTable1.columnAtPoint(evt.getPoint());
+                String columnName = jTable1.getColumnName(columnIndex);
+                
+                if (columnName == "Datum Kreiranja") {
+                    // Sort by date
+                    ToDoModel tdm = new ToDoModel();
+                    List<ToDoModel> zadaci = tdm.SortirajToDoPoDatumu();
+                    updateTableWithData(zadaci);
+                } else if (columnName == "Stanje") {
+                    // Sort by state
+                    ToDoModel tdm = new ToDoModel();
+                    List<ToDoModel> zadaci = tdm.SortirajToDoPoStanju();
+                    updateTableWithData(zadaci);
+                }
+            }
+        });
 
+        btnPrikaziActionPerformed(null);
+
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -167,11 +186,6 @@ public class ToDoFrame extends javax.swing.JFrame {
 
         selectStanje1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nije zapoceto", "Zapoceto", "U toku", "Uradjeno" }));
         selectStanje1.setSelectedIndex(1);
-        selectStanje1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                selectStanje1ActionPerformed(evt);
-            }
-        });
 
         btnGenerisiReport.setText("Generisi Report");
         btnGenerisiReport.addActionListener(new java.awt.event.ActionListener() {
@@ -283,30 +297,30 @@ public class ToDoFrame extends javax.swing.JFrame {
     private void btnSacuvajActionPerformed(java.awt.event.ActionEvent evt) {
         String naslov = txtNaslov.getText();
         String Opis = txtOpis.getText();
-        String Stanje = selectStanjeZaReport.getSelectedItem().toString();
-        
+        String Stanje = selectStanje1.getSelectedItem().toString();
+
         // Get current date without time
         java.util.Date today = new java.util.Date();
         java.util.Date datumKreiranja = new java.sql.Date(today.getTime());
-        
+
         java.util.Date utilDate = dateRokDo.getDate();
         if (utilDate == null) {
             JOptionPane.showMessageDialog(this, "Molimo unesite datum!");
             return;
         }
-        
+
         // Convert to date without time AHMED
         java.util.Date rokDo = new java.sql.Date(utilDate.getTime());
-        
-        if (naslov.isEmpty()){
+
+        if (naslov.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Greška pri unosu podataka! Ime ne sme biti prazno.");
             return;
         }
-        if (Opis.isEmpty()){
+        if (Opis.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Greška pri unosu podataka! Opis ne sme biti prazan.");
             return;
         }
-        if (Stanje.isEmpty()){
+        if (Stanje.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Greška pri unosu podataka! Stanje ne sme biti prazno.");
             return;
         }
@@ -314,108 +328,89 @@ public class ToDoFrame extends javax.swing.JFrame {
         Sesija sesija = new Sesija();
         KorisnikModel km = sesija.getUlogovaniKorisnik();
         int ID = km.ID;
-        
+
         ToDoModel tdm = new ToDoModel();
         tdm.KreirajToDo(naslov, Opis, Stanje, datumKreiranja, rokDo, ID);
-        
+
         btnPrikaziActionPerformed(null);
         txtNaslov.setText("");
         txtOpis.setText("");
-        selectStanjeZaReport.setSelectedItem(0);
         dateRokDo.setDate(null);
     }
 
     private void btnPrikaziActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrikaziActionPerformed
         // TODO add your handling code here:
-         ToDoModel tdm = new ToDoModel();
-         List<ToDoModel> zadaci = tdm.PrikaziToDos();
-         
-         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-         
-         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-         model.setRowCount(0);
-         for (int i = 0; i < zadaci.size(); i++ ){
-             Object[] row = {
-                 zadaci.get(i).ID,
-                 zadaci.get(i).naslov,
-                 zadaci.get(i).Opis,
-                 sdf.format(zadaci.get(i).datumKreiranja).toString(),
-                 sdf.format(zadaci.get(i).rokDo).toString(),
-                 zadaci.get(i).Stanje,
-             };
-             model.addRow(row);
-         }
-           txtNaslov.setText("");  //ovde
-           txtOpis.setText("");
-    selectStanjeZaReport.setSelectedItem(0);
-            dateRokDo.setDate(null);
-
+        ToDoModel tdm = new ToDoModel();
+        List<ToDoModel> zadaci = tdm.PrikaziToDos();
+        updateTableWithData(zadaci);
+        txtNaslov.setText("");  //ovde
+        txtOpis.setText("");
+        dateRokDo.setDate(null);
     }//GEN-LAST:event_btnPrikaziActionPerformed
 
     private void btnAzurirajActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = jTable1.getSelectedRow();
-        if (selectedRow != -1){
+        if (selectedRow != -1) {
             int ID = Integer.parseInt(jTable1.getValueAt(selectedRow, 0).toString());
             String Naslov = txtNaslov.getText();
             String Opis = txtOpis.getText();
-            String Stanje = selectStanjeZaReport.getSelectedItem().toString();
-            
-        java.util.Date utilDate = dateRokDo.getDate();
-        java.util.Date rokDo;
+            String Stanje = String.valueOf(selectStanje1.getSelectedItem());
+            System.out.println(Stanje);
 
-        if (utilDate == null) {
-            rokDo = new java.util.Date(); // današnji datum ako nije izabran
-        } else {
-            rokDo = new java.sql.Date(utilDate.getTime()); // trimTime možeš ubaciti ako želiš
-        }
-        
-        
+            java.util.Date utilDate = dateRokDo.getDate();
+            java.util.Date rokDo;
+
+            if (utilDate == null) {
+                rokDo = new java.util.Date(); // današnji datum ako nije izabran
+            } else {
+                rokDo = new java.sql.Date(utilDate.getTime()); // trimTime možeš ubaciti ako želiš
+            }
+
             ToDoModel tdm = new ToDoModel();
             tdm.azurirajToDo(ID, Naslov, Opis, Stanje, rokDo);
         }
-         
+
         txtNaslov.setText("");
         txtOpis.setText("");
         btnPrikaziActionPerformed(null);
-                dateRokDo.setDate(null);
+        dateRokDo.setDate(null);
 
     }
 
     private void btnObrisiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnObrisiActionPerformed
         // TODO add your handling code here:
         int selectedRow = jTable1.getSelectedRow();
-        if (selectedRow != -1){
-          int ID = Integer.parseInt(jTable1.getValueAt(selectedRow, 0).toString());
-          ToDoModel novimodel = new ToDoModel();
-          novimodel.ObrisiToDo(ID);
+        if (selectedRow != -1) {
+            int ID = Integer.parseInt(jTable1.getValueAt(selectedRow, 0).toString());
+            ToDoModel novimodel = new ToDoModel();
+            novimodel.ObrisiToDo(ID);
         }
-           txtNaslov.setText("");  // OVDE SAM RADIO 1 ZAD
-           txtOpis.setText("");
-           btnPrikaziActionPerformed(null);
+        txtNaslov.setText("");  // OVDE SAM RADIO 1 ZAD
+        txtOpis.setText("");
+        btnPrikaziActionPerformed(null);
     }//GEN-LAST:event_btnObrisiActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         String UnetiTekst = '%' + txtPretraga.getText().toString() + '%';
         ToDoModel tdm = new ToDoModel();
-        List <ToDoModel>RezultatPretrage = tdm.PronadjiToDo(UnetiTekst);
-        
+        List<ToDoModel> RezultatPretrage = tdm.PronadjiToDo(UnetiTekst);
+
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
-         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-         model.setRowCount(0);
-        
-          for (int i = 0; i < RezultatPretrage.size(); i++ ){
-             Object[] row = {
-                 RezultatPretrage.get(i).ID,
-                 RezultatPretrage.get(i).naslov,
-                 RezultatPretrage.get(i).Opis,
-                 sdf.format(RezultatPretrage.get(i).datumKreiranja).toString(),
-                 sdf.format(RezultatPretrage.get(i).rokDo).toString(),
-                 RezultatPretrage.get(i).Stanje,
-             };
-             model.addRow(row);
-         }
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+
+        for (int i = 0; i < RezultatPretrage.size(); i++) {
+            Object[] row = {
+                RezultatPretrage.get(i).ID,
+                RezultatPretrage.get(i).naslov,
+                RezultatPretrage.get(i).Opis,
+                sdf.format(RezultatPretrage.get(i).datumKreiranja).toString(),
+                sdf.format(RezultatPretrage.get(i).rokDo).toString(),
+                RezultatPretrage.get(i).Stanje,};
+            model.addRow(row);
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void selectStanjeZaReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectStanjeZaReportActionPerformed
@@ -423,34 +418,34 @@ public class ToDoFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_selectStanjeZaReportActionPerformed
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
-        // TODO add your handling code here:
+
+        int odluka = JOptionPane.showConfirmDialog(this, "Da li zelite da se izlogujete.", "Odjava", JOptionPane.YES_NO_OPTION);
+
+        if (odluka == JOptionPane.YES_OPTION) {
+            System.out.println("Korisnik je odabrao DA");
         // 1. Isprazni sesiju
-    Sesija.setUlogovaniKorisnik(null);
 
-    // 2. Zatvori trenutni prozor
-    this.dispose();  // zatvara trenutni frame
+            Sesija.setUlogovaniKorisnik(null);
 
-    // 3. Otvori login prozor
-    java.awt.EventQueue.invokeLater(new Runnable() {
-        public void run() {
-            new LoginFrame().setVisible(true);
+            LoginFrame login = new LoginFrame();
+            login.setVisible(true);
+            this.dispose();
         }
-    });
+        if (odluka == JOptionPane.NO_OPTION) {
+            System.out.println("Korisnik je odabrao NE");
+        }
     }//GEN-LAST:event_btnLogoutActionPerformed
-
-    private void selectStanje1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectStanje1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_selectStanje1ActionPerformed
 
     private void btnGenerisiReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerisiReportActionPerformed
         // Dobijanje odabranog stanja iz ComboBox-a
         String odabranoStanje = selectStanjeZaReport.getSelectedItem().toString();
-        
+
         // Poziv metode za generisanje izveštaja
         ToDoModel.generisiReportZaStanje(odabranoStanje);
     }//GEN-LAST:event_btnGenerisiReportActionPerformed
 // KADA OBRISES I AZURIRAS DA SE OCISTE SVA POLJA I DA SE AJUTOMATSKI AZURIRA U TABELU .
     // dodati posebpo polje koje pretrazuje samo po stanju             sve novo   okk
+
     /**
      * @param args the command line arguments
      */
@@ -509,4 +504,22 @@ public class ToDoFrame extends javax.swing.JFrame {
     private javax.swing.JTextField txtOpis;
     private javax.swing.JTextField txtPretraga;
     // End of variables declaration//GEN-END:variables
+
+    private void updateTableWithData(List<ToDoModel> zadaci) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+        
+        for (int i = 0; i < zadaci.size(); i++) {
+            Object[] row = {
+                zadaci.get(i).ID,
+                zadaci.get(i).naslov,
+                zadaci.get(i).Opis,
+                sdf.format(zadaci.get(i).datumKreiranja).toString(),
+                sdf.format(zadaci.get(i).rokDo).toString(),
+                zadaci.get(i).Stanje
+            };
+            model.addRow(row);
+        }
+    }
 }
